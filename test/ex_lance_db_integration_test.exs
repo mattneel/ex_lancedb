@@ -62,4 +62,32 @@ defmodule ExLanceDBIntegrationTest do
     assert {:ok, reopened_hits} = ExLanceDB.search(reopened, [0.9, 0.45, 0.3, 0.22], limit: 5)
     assert length(reopened_hits) == 5
   end
+
+  test "concurrent search calls over shared table handle", %{db_path: db_path} do
+    assert {:ok, conn} = ExLanceDB.connect(db_path)
+    assert {:ok, table} = ExLanceDB.create_table(conn, "mechanics", Mechanics)
+    assert :ok = ExLanceDB.insert(table, TestFixtureData.mechanics_records(1_024))
+
+    query = [0.9, 0.45, 0.3, 0.22]
+
+    results =
+      1..50
+      |> Task.async_stream(
+        fn _idx ->
+          ExLanceDB.search(table, query,
+            limit: 10,
+            filter: "effect_category = 'damage' AND source_game != 'yugioh'"
+          )
+        end,
+        timeout: 15_000,
+        ordered: false,
+        max_concurrency: 25
+      )
+      |> Enum.to_list()
+
+    assert Enum.all?(results, fn
+             {:ok, {:ok, hits}} when is_list(hits) and length(hits) == 10 -> true
+             _ -> false
+           end)
+  end
 end

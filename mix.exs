@@ -15,6 +15,7 @@ defmodule ExLancedb.MixProject do
       aliases: aliases(),
       source_url: @source_url,
       homepage_url: @source_url,
+      dialyzer: [plt_add_apps: [:mix]],
       package: package(),
       docs: docs(),
       deps: deps()

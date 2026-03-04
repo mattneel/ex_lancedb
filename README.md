@@ -114,6 +114,11 @@ Search result shape:
 - `ExLanceDB.search/3`
 - `ExLanceDB.create_index/3`
 
+## Mix Tasks
+
+- `mix ex_lancedb.new_schema` - generate a schema module scaffold
+- `mix ex_lancedb.gen.livebook` - generate a runnable quickstart Livebook
+
 ## Precompiled NIFs
 
 NIF artifacts are downloaded from GitHub Releases:

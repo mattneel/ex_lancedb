@@ -41,3 +41,8 @@ Search returns:
 ## Compatibility Note
 
 `ExLancedb` remains as a deprecated compatibility facade over `ExLanceDB`.
+
+## Mix Tasks
+
+- `mix ex_lancedb.new_schema Module.Name [--table name --dim 768 --primary id]`
+- `mix ex_lancedb.gen.livebook [--path livebooks/demo.livemd --dim 4]`
