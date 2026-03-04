@@ -46,7 +46,7 @@ defmodule ExLancedb.MixProject do
       {:mix_audit, "~> 2.1", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.38", only: :dev, runtime: false},
       {:makeup_elixir, "~> 1.0", only: :dev, runtime: false},
-      {:makeup_eex, "~> 1.0", only: :dev, runtime: false},
+      {:makeup_eex, "~> 2.0", only: :dev, runtime: false},
       {:makeup_syntect, "~> 0.1", only: :dev, runtime: false},
       {:makeup_diff, "~> 0.1", only: :dev, runtime: false}
     ]
