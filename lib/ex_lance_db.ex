@@ -41,9 +41,8 @@ defmodule ExLanceDB do
          {:ok, limit} <- normalize_limit(opts),
          {:ok, filter} <- normalize_filter(opts),
          {:ok, raw_hits} <-
-           Error.normalize_nif_result(Nif.search(table.ref, embedding, limit, filter)),
-         {:ok, hits} <- decode_hits(raw_hits) do
-      {:ok, hits}
+           Error.normalize_nif_result(Nif.search(table.ref, embedding, limit, filter)) do
+      decode_hits(raw_hits)
     end
   end
 
@@ -72,10 +71,7 @@ defmodule ExLanceDB do
   defp normalize_limit(opts) do
     limit = Keyword.get(opts, :limit, 10)
 
-    cond do
-      is_integer(limit) and limit > 0 -> {:ok, limit}
-      true -> {:error, {:invalid_limit, limit}}
-    end
+    if is_integer(limit) and limit > 0, do: {:ok, limit}, else: {:error, {:invalid_limit, limit}}
   end
 
   defp normalize_filter(opts) do

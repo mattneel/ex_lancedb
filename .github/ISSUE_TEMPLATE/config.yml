@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://github.com/mattneel/ex_lancedb#documentation-map
+    about: Check guides, reference docs, and livebook before opening an issue.

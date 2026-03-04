@@ -2,13 +2,17 @@
 
 `ex_lancedb` is an embedded LanceDB client for Elixir built with Rustler.
 
-The library provides an Elixir API for supervised connections, schema declaration, batch inserts, vector search, and index management without external vector database services.
+The library exposes a small, explicit API for schema declaration, batch insert, vector similarity search, and index management without a sidecar service.
 
 ## Status
 
-`v0.1.0` development scope.
+`v0.1.0` scope is implemented and ready for release hardening.
 
-Current implementation focuses on core local LanceDB workflows and native compilation.
+## Support Policy
+
+| ex_lancedb | Elixir | OTP | Notes |
+| --- | --- | --- | --- |
+| `0.1.x` | `~> 1.19` | `26, 27` | Embedded LanceDB, local filesystem |
 
 ## Features
 
@@ -18,11 +22,12 @@ Current implementation focuses on core local LanceDB workflows and native compil
 - Vector similarity search with optional SQL filter
 - IVF-PQ index creation
 - Error surface normalized to `{:ok, value} | {:error, reason}`
+- Livebook quickstart example
 
 ## Requirements
 
 - Elixir `~> 1.19`
-- Rust toolchain (`cargo`, `rustc`)
+- Rust toolchain (`cargo`, `rustc`) for native builds
 - `protoc` available on `PATH`
   - Debian/Ubuntu: `protobuf-compiler`
   - macOS (Homebrew): `protobuf`
@@ -88,11 +93,17 @@ Search result shape:
 [{score :: float(), record :: map()}]
 ```
 
-## Livebook
+## Documentation Map
 
-A runnable example is available in:
-
-- `livebooks/quickstart.livemd`
+- Tutorial: [`documentation/tutorials/getting-started.md`](documentation/tutorials/getting-started.md)
+- How-to: [`documentation/how-to/run-filtered-vector-search.md`](documentation/how-to/run-filtered-vector-search.md)
+- How-to: [`documentation/how-to/native-build-and-precompiled.md`](documentation/how-to/native-build-and-precompiled.md)
+- Reference: [`documentation/reference/public-api.md`](documentation/reference/public-api.md)
+- Reference: [`documentation/reference/error-contract.md`](documentation/reference/error-contract.md)
+- Architecture: [`documentation/reference/architecture.md`](documentation/reference/architecture.md)
+- Cheatsheet: [`documentation/cheatsheets/schema-dsl.md`](documentation/cheatsheets/schema-dsl.md)
+- Usage rules index: [`usage-rules.md`](usage-rules.md)
+- Livebook: [`livebooks/quickstart.livemd`](livebooks/quickstart.livemd)
 
 ## Public API
 
@@ -103,20 +114,13 @@ A runnable example is available in:
 - `ExLanceDB.search/3`
 - `ExLanceDB.create_index/3`
 
-## Precompiled NIFs (RustlerPrecompiled)
+## Precompiled NIFs
 
-The NIF module is configured to download release artifacts from:
+NIF artifacts are downloaded from GitHub Releases:
 
 - `https://github.com/mattneel/ex_lancedb/releases`
 
-Release pipeline:
-
-1. Push tag `vX.Y.Z`
-2. Run `.github/workflows/precompiled_nifs.yml`
-3. Publish release assets for all configured targets
-4. Generate and publish `checksum-Elixir.ExLanceDB.Nif.exs`
-
-Configured precompiled targets:
+Configured targets:
 
 - `x86_64-unknown-linux-gnu`
 - `aarch64-unknown-linux-gnu`
@@ -133,10 +137,16 @@ Configured build runners:
 Development fallback behavior:
 
 - If `checksum-Elixir.ExLanceDB.Nif.exs` is absent, native build is used.
-- Native build can be forced with:
+- Native build can be forced with `EX_LANCEDB_BUILD=1`.
+
+## Quality Gates
+
+Local quality commands:
 
 ```bash
-EX_LANCEDB_BUILD=1 mix test
+mix check
+mix check.ci
+mix check.types
 ```
 
 ## Release Helpers
@@ -147,28 +157,10 @@ Checksum synchronization helper:
 scripts/release/sync_checksum_from_release.sh --tag v0.1.0
 ```
 
-The helper waits for the release workflow, downloads `checksum-Elixir.ExLanceDB.Nif.exs`, and creates a local commit when the checksum changes.
+## Contributing
 
-## CI
+See [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
-CI definition is in `.github/workflows/ci.yml`.
+## Changelog
 
-Current trigger mode is manual (`workflow_dispatch`).
-
-## Tests
-
-```bash
-mix test
-```
-
-The integration test suite runs against real LanceDB data in temporary local directories.
-
-## Usage Rules Docs
-
-Documentation index:
-
-- `usage-rules.md`
-
-Topic pages:
-
-- `usage-rules/*.md`
+See [`CHANGELOG.md`](CHANGELOG.md).

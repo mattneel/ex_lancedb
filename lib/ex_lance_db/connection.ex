@@ -1,5 +1,9 @@
 defmodule ExLanceDB.Connection do
-  @moduledoc false
+  @moduledoc """
+  Process-backed LanceDB connection handle.
+
+  Instances are returned by `ExLanceDB.connect/1` and are passed to table lifecycle APIs.
+  """
 
   use GenServer
 

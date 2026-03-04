@@ -1,5 +1,7 @@
 defmodule ExLanceDB.Table do
-  @moduledoc false
+  @moduledoc """
+  Table handle used by `insert/2`, `search/3`, and `create_index/3`.
+  """
 
   alias ExLanceDB.Connection
 
