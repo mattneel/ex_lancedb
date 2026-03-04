@@ -30,7 +30,7 @@ PROTOC=/absolute/path/to/protoc mix test
 GitHub Actions CI runs:
 - Ubuntu 24.04 + Elixir 1.19.5 + OTP 27.3
 - Ubuntu 24.04 + Elixir 1.19.5 + OTP 26.2
-- macOS 13 + Elixir 1.19.5 + OTP 27.3
+- macOS latest + Elixir 1.19.5 + OTP 27.3
 
 See:
 - `.github/workflows/ci.yml`
