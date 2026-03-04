@@ -57,7 +57,7 @@ jobs:
 
       - name: Build precompiled NIF
         id: build-crate
-        uses: philss/rustler-precompiled-action@d45726b5e885c1fa1e8df1a9d5237cc3ff901097 # v1.0.1
+        uses: philss/rustler-precompiled-action@853ac56183f29a080304df3ff8a194b5bbdc24cc # v1.1.4
         with:
           project-name: ex_lancedb_nif
           project-version: ${{ steps.version.outputs.version }}
