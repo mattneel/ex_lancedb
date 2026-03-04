@@ -25,7 +25,7 @@ graph TD
 
 | Decision | Choice | Rationale | Trade-off |
 |----------|--------|-----------|-----------|
-| Module naming | Move to `ExLanceDB` canonical module | Matches requested API and ecosystem naming expectations | Breaks scaffold name; requires migration in tests/docs |
+| Module naming | Move to `ExLanceDB` canonical module | Matches target public API and ecosystem naming expectations | Breaks scaffold name; requires migration in tests/docs |
 | Rustler package | `{:rustler, "~> 0.37.3", runtime: false}` | Matches provided docs and current stable API | Requires local Rust toolchain for v0.1 |
 | NIF scheduling | `schedule = "DirtyIo"` for all blocking calls | Protects normal schedulers from blocking IO | Dirty pool saturation risk under heavy parallel workload |
 | Runtime ownership | Global Tokio runtime (`OnceLock<Runtime>`) | Avoid runtime-per-call overhead and simplify async bridging | Global runtime lifetime management complexity |
