@@ -27,13 +27,15 @@ PROTOC=/absolute/path/to/protoc mix test
 
 ## CI Matrix
 
-GitHub Actions CI runs:
+GitHub Actions CI definition includes:
 - Ubuntu 24.04 + Elixir 1.19.5 + OTP 27.3
 - Ubuntu 24.04 + Elixir 1.19.5 + OTP 26.2
 - macOS latest + Elixir 1.19.5 + OTP 27.3
 
 See:
 - `.github/workflows/ci.yml`
+
+Note: CI is currently `workflow_dispatch` only (manual trigger).
 
 ## Installation
 
@@ -119,6 +121,12 @@ Workflow:
 
 Workflows:
 - `.github/workflows/precompiled_nifs.yml`
+
+Precompiled build runners:
+- `ubuntu-24.04` -> `x86_64-unknown-linux-gnu`
+- `ubuntu-24.04-arm` -> `aarch64-unknown-linux-gnu`
+- `macos-15-intel` -> `x86_64-apple-darwin`
+- `macos-latest` -> `aarch64-apple-darwin`
 
 Development behavior:
 - If checksum file is not present in the source tree, `ExLanceDB.Nif` automatically falls back to source build.
