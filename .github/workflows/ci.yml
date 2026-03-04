@@ -15,21 +15,16 @@ concurrency:
 
 jobs:
   test:
-    name: test / ${{ matrix.os }} / elixir-${{ matrix.elixir }} / otp-${{ matrix.otp }}
-    runs-on: ${{ matrix.os }}
+    name: test / linux-self-hosted / elixir-${{ matrix.elixir }} / otp-${{ matrix.otp }}
+    runs-on: [self-hosted, linux, x64, exlancedb-linux]
     timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-24.04
-            elixir: "1.19.0"
+          - elixir: "1.19.0"
             otp: "26.2"
-          - os: ubuntu-24.04
-            elixir: "1.19.5"
-            otp: "27.3"
-          - os: macos-latest
-            elixir: "1.19.5"
+          - elixir: "1.19.5"
             otp: "27.3"
 
     env:
@@ -51,13 +46,8 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Install protobuf compiler (Linux)
-        if: startsWith(matrix.os, 'ubuntu-')
-        run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
-
-      - name: Install protobuf compiler (macOS)
-        if: startsWith(matrix.os, 'macos-')
-        run: brew install protobuf
+      - name: Verify protobuf compiler
+        run: protoc --version
 
       - name: Cache Mix dependencies and build
         uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
@@ -87,7 +77,7 @@ jobs:
 
   quality:
     name: quality gates
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, exlancedb-linux]
     timeout-minutes: 60
     env:
       MIX_ENV: dev
@@ -107,8 +97,8 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Install protobuf compiler
-        run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
+      - name: Verify protobuf compiler
+        run: protoc --version
 
       - name: Cache Mix dependencies and build
         uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
@@ -149,7 +139,7 @@ jobs:
 
   typecheck:
     name: dialyzer
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, exlancedb-linux]
     timeout-minutes: 75
     env:
       MIX_ENV: dev
@@ -169,8 +159,8 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Install protobuf compiler
-        run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
+      - name: Verify protobuf compiler
+        run: protoc --version
 
       - name: Cache Mix dependencies and build
         uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3

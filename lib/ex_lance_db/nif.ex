@@ -2,9 +2,10 @@ defmodule ExLanceDB.Nif do
   @moduledoc false
 
   @version Mix.Project.config()[:version]
-  @checksum_file Path.expand("../../checksum-Elixir.ExLanceDB.Nif.exs", __DIR__)
   @force_build? System.get_env("EX_LANCEDB_BUILD") in ["1", "true"] or
-                  not File.exists?(@checksum_file)
+                  not File.exists?(
+                    Path.expand("../../checksum-Elixir.ExLanceDB.Nif.exs", __DIR__)
+                  )
 
   use RustlerPrecompiled,
     otp_app: :ex_lancedb,
