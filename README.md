@@ -128,6 +128,20 @@ Development behavior:
 EX_LANCEDB_BUILD=1 mix test
 ```
 
+### Checksum Sync Helper
+
+After pushing a release tag and waiting for `precompiled_nifs.yml` to run, sync the checksum file:
+
+```bash
+scripts/release/sync_checksum_from_release.sh --tag v0.1.0
+```
+
+This script:
+- waits for the tag workflow run
+- fails if the workflow fails
+- downloads `checksum-Elixir.ExLanceDB.Nif.exs` from the release assets
+- commits checksum updates locally
+
 ## Public API
 
 - `ExLanceDB.connect/1`
