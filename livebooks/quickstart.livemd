@@ -1,0 +1,101 @@
+# ex_lancedb Quickstart
+
+> A minimal end-to-end example for `ex_lancedb`.
+
+## Prerequisites
+
+- Rust toolchain (`cargo`, `rustc`)
+- `protoc` available on `PATH` (or `PROTOC=/path/to/protoc`)
+
+## Install
+
+```elixir
+Mix.install([
+  {:ex_lancedb, path: Path.expand("..", __DIR__)}
+])
+```
+
+## Define Schema
+
+```elixir
+defmodule Mechanics do
+  use ExLanceDB.Schema
+
+  field :id, :string, primary: true
+  field :name, :string
+  field :description, :string
+  field :effect_category, :string
+  field :source_game, :string
+  field :embedding, :vector, dim: 4
+end
+```
+
+## Connect and Create Table
+
+```elixir
+db_path = Path.join(System.tmp_dir!(), "ex_lancedb_livebook_#{System.unique_integer([:positive])}")
+File.rm_rf!(db_path)
+File.mkdir_p!(db_path)
+
+{:ok, conn} = ExLanceDB.connect(db_path)
+{:ok, table} = ExLanceDB.create_table(conn, "mechanics", Mechanics)
+```
+
+## Insert Records
+
+```elixir
+records = [
+  %{
+    id: "m-1",
+    name: "Burn",
+    description: "Deal direct damage",
+    effect_category: "damage",
+    source_game: "mtg",
+    embedding: [0.92, 0.41, 0.27, 0.18]
+  },
+  %{
+    id: "m-2",
+    name: "Freeze",
+    description: "Delay target action",
+    effect_category: "control",
+    source_game: "mtg",
+    embedding: [0.12, 0.24, 0.71, 0.66]
+  },
+  %{
+    id: "m-3",
+    name: "Blast",
+    description: "High burst damage",
+    effect_category: "damage",
+    source_game: "pokemon",
+    embedding: [0.88, 0.39, 0.30, 0.21]
+  }
+]
+
+:ok = ExLanceDB.insert(table, records)
+```
+
+## Search
+
+```elixir
+{:ok, hits} =
+  ExLanceDB.search(table, [0.9, 0.4, 0.3, 0.2],
+    limit: 5,
+    filter: "effect_category = 'damage'"
+  )
+
+hits
+```
+
+## Create IVF-PQ Index
+
+```elixir
+:ok = ExLanceDB.create_index(table, :embedding, :ivf_pq)
+```
+
+## Reopen Existing Table
+
+```elixir
+{:ok, reopened} = ExLanceDB.open_table(conn, "mechanics")
+{:ok, reopened_hits} = ExLanceDB.search(reopened, [0.9, 0.4, 0.3, 0.2], limit: 3)
+reopened_hits
+```

@@ -1,0 +1,130 @@
+name: Build Precompiled NIFs
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build_release:
+    name: NIF ${{ matrix.target }} (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            target: x86_64-unknown-linux-gnu
+          - os: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+          - os: macos-13
+            target: x86_64-apple-darwin
+          - os: macos-14
+            target: aarch64-apple-darwin
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Resolve project version
+        id: version
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          else
+            VERSION=$(sed -n 's/^      version: "\(.*\)",$/\1/p' mix.exs | head -n1)
+            echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          target: ${{ matrix.target }}
+
+      - name: Install protobuf compiler (Linux)
+        if: startsWith(matrix.os, 'ubuntu-')
+        run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
+
+      - name: Install protobuf compiler (macOS)
+        if: startsWith(matrix.os, 'macos-')
+        run: brew install protobuf
+
+      - name: Build precompiled NIF
+        id: build-crate
+        uses: philss/rustler-precompiled-action@v1.0.1
+        with:
+          project-name: ex_lancedb_nif
+          project-version: ${{ steps.version.outputs.version }}
+          target: ${{ matrix.target }}
+          nif-version: "2.17"
+          project-dir: "native/ex_lancedb_nif"
+
+      - name: Artifact upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.build-crate.outputs.file-name }}
+          path: ${{ steps.build-crate.outputs.file-path }}
+
+      - name: Publish archives
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/v')
+        with:
+          files: |
+            ${{ steps.build-crate.outputs.file-path }}
+
+  generate_checksum:
+    name: Generate RustlerPrecompiled checksum
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build_release
+    runs-on: ubuntu-24.04
+    env:
+      MIX_ENV: dev
+      EX_LANCEDB_BUILD: "1"
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set up Elixir + OTP
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: "1.19.5"
+          otp-version: "27.3"
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install protobuf compiler
+        run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
+
+      - name: Install deps
+        run: mix deps.get
+
+      - name: Build checksum file from release artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3 4 5; do
+            if mix rustler_precompiled.download ExLanceDB.Nif --all --print; then
+              exit 0
+            fi
+            echo "Checksum generation attempt ${attempt} failed, retrying in 10s..."
+            sleep 10
+          done
+          echo "Failed to generate checksum file after retries"
+          exit 1
+
+      - name: Upload checksum artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: checksum-Elixir.ExLanceDB.Nif.exs
+          path: checksum-Elixir.ExLanceDB.Nif.exs
+
+      - name: Publish checksum asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: checksum-Elixir.ExLanceDB.Nif.exs
